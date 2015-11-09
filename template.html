@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+  <head>
+     <style>
+
+     #div1 {
+       position:absolute;
+       left:50px;
+       top:10px;
+       background: rgba(255, 255, 215, 0.5);
+       height: 130px;
+       width:1400px;
+     }
+
+     </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css?n=1">
+ 
+    <!-- Standered Libraries-->
+    <script type="text/javascript" src="javascript/standard/d3.v3.min.js?n=1"></script>
+    <script type="text/javascript" src="javascript/standard/jquery-2.0.3.min.js?n=1"></script>
+
+    <!-- Libraries -->
+   
+    <script type="text/javascript" src="javascript/custom/testflow.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/callchain.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/histogram.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/range.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/updateView.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/updateData.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/loadDefault.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/updateSVG.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/drawNode.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/update_scale.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/update_ticks.js?n=1"></script>
+    
+  </head>
+  <body>
+  
+   <div id="div1">
+     <center> Runtime of a Testflow </center>
+
+      <form>
+   
+      <label> Select a view to visualize data:</label>
+      <select id = "selectView">
+        <option value="Stacked">Stacked</option>
+        <option value="Horizontal" selected>Unstack</option>
+      </select>
+      
+      <!--<br/>--> 
+     <!--
+      &nbsp; &nbsp; &nbsp;
+   
+      <label> Choose a unit: </label>
+      <input id = "radio1" type="radio" name="radioButton" value="ms" checked/>in ms
+      <input id = "radio2" type="radio" name="radioButton" value="us" />in us 
+
+      &nbsp; &nbsp; &nbsp;
+
+      <label> Zoom :</label>
+      <input id = "zoom1" type="radio" name="zoomButton" value="enable" />enable
+      <input id = "zoom2" type="radio" name="zoomButton" value="disable" checked/>disable
+
+      -->
+
+      <br/>   
+      <br/>   
+
+      <label> Select an iteration to view:</label>
+        <select id = "iter_total">
+        </select>
+
+      </form>
+   </div>
+
+   <div id="div2">
+   </div>
+
+   <div id="div_hist">
+      <center> Distribution of the Runtime of a Testflow </center>
+
+      <form>
+         <label> No of bins:<label>
+         <input type="text" name="bins">
+         <input type="submit" name="submit_bin" onclick="updateHistBins()" value="update">
+         <input type="submit" name="submit_bin" onclick="updateHistBins()" value="default">
+      </form>
+   </div>
+
+  <script>
+
+   /*
+    * Gobal variables
+    */
+    var workflow,
+        svg,
+        vis,
+        legend,
+        scale,
+        //dataRange,
+        axis,
+        zoom,
+        nodes, 
+        links,
+        nodeLength,
+        newdata = 0,
+        view = 1,
+        data_values,
+        hist_created = 0,
+        default_val = 1,
+        hist_ini = 1,
+        link_ini = 1,
+        viewChange = 0,
+        singleData = 0,
+        iter_value,
+        iter;
+
+    var types = [];
+    var type = [];
+
+    var color = d3.scale.category10();
+    
+    //Create svg layout
+    var padding = 15;
+    var margin = {top: 50, right: 20, bottom: 20, left: 10},
+    w = 1500 - margin.left - margin.right,
+    h = 900 - margin.top - margin.bottom,
+    x = d3.scale.linear().domain([0, w]).range([0, w]),
+    y = d3.scale.linear().domain([0, h]).range([0, h]);
+
+    //Range of the scale
+    var rangeBegin = 20;
+    var rangeEnd =  1200;
+
+    //Node attributes
+    var node_height = 15;
+
+    // Overhead  
+    var ov_data = [];
+   
+    svg = d3.select("#div2").append("svg")
+      .attr("width", w + margin.left + margin.right)
+      .attr("height", h + margin.top + margin.bottom)
+      .attr("id","horizontal")
+     .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    vis = d3.select("#div_hist").append("svg:svg")
+    .attr("width", w + margin.left + margin.right)
+      .attr("height", 500)
+      .attr("id","histogram")
+     .append("g")
+      .attr("transform", "translate(10,10)");
+        
+    //Data processing 
+    var dataModel = function(){
+      this.processData = function(data){
+     
+        data_values = data;
+
+        console.log(data);
+
+        iter = data.iteration;
+  
+        for ( var i = 1; i < iter+1; i++ ){
+             $('#iter_total').append($("<option/>", {
+              value:i,
+              text: "Iteration " + i
+             }));
+         }
+
+        createTestflow(data.nodes1)
+        
+      } 
+      
+    }
+
+    //Fetch the data
+    var dataController = function(){
+        this.getData = function(){
+          console.log("Getting data from json");
+          var dataElement = new dataModel();
+
+          d3.json(REPLACE, function(data) {
+     
+            dataElement.processData(data);
+          }); 
+        }
+    }
+
+    //Set Scale 
+    function setScale(dataRange){
+   
+      scale = d3.scale.linear()
+         .domain([dataRange[0],dataRange[1]])
+         .range([rangeBegin,rangeEnd]);
+    }
+
+    //create testflow
+    function createTestflow(nodes){
+   
+      workflow = d3.layout.workflow()
+        .nodes(nodes)
+        .size([w - 4*padding, h- 4*padding]);
+   
+      workflow.layout();
+
+       //console.log(nodes);
+
+       if(nodes.length == undefined){
+                 
+            singleData = 1;
+            DrawNode(nodes);
+
+       }else{
+
+            nodeLength = nodes.length;
+
+            var start = new Date().getTime();
+
+            console.profile(["Initial data load"]);
+
+            updateData(nodes,default_val);  
+
+            console.profileEnd() ;
+
+            var end = new Date().getTime();
+    
+            var time = end - start;
+
+            alert('Execution time: ' + time);      
+       }
+    
+    }
+
+    // creating a new controller for Getting the data from json file
+    var cntrl = new dataController();
+    cntrl.getData();
+
+    //Select differnet iteration to view
+    $("#iter_total").change(function(){ 
+
+     iter_value = $(this).val();
+     var temp_str = "nodes"+iter_value;
+
+     if(data_values[temp_str].length == undefined){
+
+         DrawNode(data_values[temp_str]); 
+
+     }else if(data_values[temp_str].length != nodeLength){
+
+          //console.log("Reached new data update loop");
+         links = [];
+        
+         workflow.nodes(data_values[temp_str])
+                  .links(links);          
+ 
+         workflow.layout();
+
+         newdata = 1;
+
+         default_val = 0;
+         link_ini = 0;
+
+         nodeLength = data_values[temp_str].length;
+
+         var start = new Date().getTime();
+
+         console.profile(["New data with different node length"]);
+         
+         updateData(data_values[temp_str],default_val,iter_value);
+
+         console.profileEnd();
+
+         var end = new Date().getTime();
+    
+         var time = end - start;
+
+         alert('Execution time: ' + time);
+
+      }else {
+
+         default_val = 0;
+         link_ini = 0;
+
+         var start = new Date().getTime();
+     
+         updateData(data_values[temp_str],default_val,iter_value);
+ 
+         var end = new Date().getTime();
+    
+         var time = end - start;
+
+         alert('Execution time: ' + time);
+      
+      }
+
+    });
+
+     //Update svg for different view input
+    $('#selectView').change(function(){ 
+     view = $(this).val();
+ 
+     viewChange=1;
+  
+     updateSvgView(gNodes,view,iter_value);
+    });
+
+     //Enable or disable zoom
+    $("input[name='zoomButton']").change(function(){
+      if ($("#zoom1").is(":checked")){
+       
+       //to enable zoom and pan
+       d3.select("svg").call(zoom);
+
+       d3.select("svg").call(pan);
+       d3.select("svg").attr("transform", "translate(200,0) scale(2,2)");
+      }else{
+   
+      } 
+    });
+
+   
+    </script>
+  </body>
+
+</html>

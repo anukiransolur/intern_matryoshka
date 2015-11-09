@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+  <head>
+     <style>
+
+     #div1 {
+       position:absolute;
+       left:50px;
+       top:10px;
+       background: rgba(255, 255, 215, 0.5);
+       height: 130px;
+       width:1200px;
+     }
+
+      rect.bordered {
+        stroke: #E6E6E6;
+        stroke-width:2px;   
+      }
+
+      text.mono {
+        font-size: 9pt;
+        font-family: Consolas, courier;
+        fill: #aaa;
+      }
+
+      text.axis-workweek {
+        fill: #000;
+      }
+
+      text.axis-worktime {
+        fill: #000;
+      }
+     </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css?n=1">
+ 
+    <!-- Standard Libraries-->
+    <script type="text/javascript" src="javascript/standard/d3.v3.min.js?n=1"></script>
+    <script type="text/javascript" src="javascript/standard/jquery-2.0.3.min.js?n=1"></script>
+
+    <!-- Libraries -->
+    <script type="text/javascript" src="javascript/custom/testflow.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/heatmap.js?n=1"></script>
+   
+  </head>
+  <body>
+  
+   <div id="div1">
+     <center> HeatMap </center>
+   </div>
+
+   <div id="div2">
+   </div>
+
+  <script>
+
+    /*
+     * Global Variables
+     */
+   
+    var margin = { top: 50, right: 0, bottom: 100, left: 30 },
+        width = 1200 - margin.left - margin.right,
+        height = 430 - margin.top - margin.bottom,
+        gridSize = Math.floor(width / 64),
+        legendElementWidth = gridSize*2,
+        buckets = 9;
+    
+    var vis,
+        colors;
+    
+    var types = [];
+    var type = [];
+
+    var color = d3.scale.category10();
+
+    //Range of the scale
+    var rangeBegin = 20;
+    var rangeEnd =  1200;
+
+    /*
+     * Model
+     */
+
+    var ModelData = function(data){
+   
+        this.data = data;
+        return this;
+    }
+   
+
+    /*
+     * View
+     */
+      
+    // View object constructor 
+    var ViewData = function( model ){
+      this.model = model.data;
+      this.workflow = null;
+      this.svg = null;
+      this.chart = null;
+           
+      return this;
+    }
+
+    //Renderer 
+ 
+    ViewData.prototype.render = function(iter_nodes,iter_links,iter_val){
+
+      /*vis = d3.select(this.chart).append("svg:svg")
+    .attr("width", w + margin.left + margin.right)
+      .attr("height", h + margin.top + margin.bottom)
+      .attr("id","Compare")
+     .append("g")
+      .attr("transform", "translate(120,20)");*/
+
+      var data_val = this.model;
+
+    }
+    
+    /*
+     * Controller
+     */
+      
+    var Controller = function(){
+        return this;
+    };
+
+    Controller.prototype.loadView = function(chart){
+  
+    //Get data from json
+     
+    d3.json(REPLACE, function(data) {
+
+        console.log(data);
+      
+        var model = new ModelData(data);
+      
+        view = new ViewData(model);
+
+        view.chart = chart;
+
+        generateHeatmap(data);
+       
+     }); 
+
+    }
+
+    // creating a new controller for Getting the data from json file
+    cntrl = new Controller();
+    cntrl.loadView("#div2");
+
+    
+
+    </script>
+  </body>
+
+</html>

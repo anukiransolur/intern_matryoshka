@@ -1,0 +1,271 @@
+/* CSS for Testflow */
+
+html { font:normal 14px/20px 'Lucida Grande', Arial, Sans-Serif; }
+
+//Layout of visualiation page
+
+#div1 {
+       position:absolute;
+       left:50px;
+       top:10px;
+       background: rgba(255, 255, 215, 0.5);
+       height: 130px;
+       width:1400px;
+     }
+
+#div2_info{
+     position:absolute;
+     left:50px;
+     top:150px;
+     background: rgba(240, 230, 255, 0.5);
+     height:180px;
+     width:1400px;
+}
+
+#div2_svg{
+     position:absolute;
+     left:50px;
+     top:340px;
+     background: rgba(240, 230, 255, 0.5);
+     height:900px;
+     width:1400px;
+}
+
+#div2 {
+   position:absolute;
+   left:50px;
+   top:150px;
+   background: rgba(240, 230, 255, 0.5);
+   height:900px;
+   width:1400px;
+}
+
+#div_hist {
+   position:absolute;
+   left:50px;
+   top:1250px;
+   background: rgba(240, 230, 255, 0.5);
+   height:500px;
+   width:1400px;
+}
+
+
+#div3 {
+   position:absolute;
+   left:50px;
+   top:1060px;
+   background: rgba(255, 255, 215, 0.5);
+   height: 130px;
+   width:1400px;
+}
+ 
+#div4 {
+   position:absolute;
+   left:50px;
+   top:1200px;
+   background: rgba(240, 230, 255, 0.5);
+   height: 900px;
+   width:1400px;
+}
+
+#div5 {
+   position:absolute;
+   left:50px;
+   top:2110px;
+   background: rgba(255, 255, 215, 0.5);
+   height: 130px;
+   width:1400px;
+}
+ 
+#div6 {
+   position:absolute;
+   left:50px;
+   top:2250px;
+   background: rgba(240, 230, 255, 0.5);
+   height: 900px;
+   width:1400px;
+}
+
+//For the nodes
+.node {
+  fill: #aec7e8;
+  border: 2px solid #000;
+}
+
+//For the links
+.link {
+  stroke: #999;
+}
+
+marker{
+ fill: black;
+}
+
+.label {
+  stroke: #800;
+}
+
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 2px;
+}
+
+//Style for the Tool Tip
+
+
+//Style for legend
+.legend{
+  padding: 5px;
+  font: 10px sans-serif;
+  background: yellow;
+  box-shadow: 2px 2px 1px #888;
+}
+
+//Histogram Axis   
+.bar rect {
+  fill: none;
+  shape-rendering: crispEdges;
+}
+
+.bar text {
+  fill: #fff;
+}
+
+.xaxis1 path, .xaxis1 line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+//Style for the Axes
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
+//For Layout of Index Page
+
+  #img{
+    position: absolute;
+    top:-20%;
+    left: -1%;
+  }
+
+  #desp{
+    position: absolute;
+    top:15%;
+    left: 10%;
+    font-weight:bold;
+}
+  
+  #uploadFile{
+    position: absolute;
+    top: 30%;
+    left: 10%;
+    width: 500px;
+    height: 200px;
+    color: #000;
+  }
+
+  #place1{
+   position: absolute;
+   top: 35%;
+   left: 10%;
+   color: #000;
+ }
+
+  #infile{
+    position: absolute;
+    top: 40%;
+    left: 10%;
+    color: #000;
+    visibility:hidden;
+  }
+
+  #selectFile{
+    position: absolute;
+    top: 45%;
+    left: 10%;
+    width: 800px;
+    height: 200px;
+    color: #000;
+  }
+
+  #selectfileDB{
+    position: absolute;
+    top: 62%;
+    left: 10%;
+    width: 800px;
+    height: 200px;
+    color: #000;
+
+  }
+
+  #deleteFile{
+    position: absolute;
+    top: 58%;
+    left: 10%;
+    width: 800px;
+    height: 100px;
+    color: #000;
+  }
+
+  #compareFile{
+    position: absolute;
+    top: 82%;
+    left: 10%;
+    width: 800px;
+    height: 200px;
+    color: #000;
+  }
+
+  #file {
+    position: absolute;
+    text-align: right;
+    z-index: 2;
+  }
+
+  #sucess{
+    position: absolute;
+    top: 40%;
+    left: 10%;
+    width: 800px;
+    height: 200px;
+    color: green;
+  }
+
+  #error{
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    width: 800px;
+    height: 200px;
+    color: red;
+  }
+  
+  #tested{
+    position: absolute;
+    top: 110%;
+    left: 60%;
+    width: 350px;
+    height: 200px;
+    color: #000;
+    font-size: 12px;
+  }
+
+  #help{
+    position: absolute;
+    top: 113%;
+    left: 60%;
+    width: 350px;
+    height: 200px;
+    color: #000;
+    font-size: 12px;
+  }

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+  <head>
+     <style>
+
+     #div1 {
+       position:absolute;
+       left:50px;
+       top:10px;
+       background: rgba(255, 255, 215, 0.5);
+       height: 130px;
+       width:1200px;
+     }
+
+     </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css?n=1">
+ 
+    <!-- Standard Libraries-->
+    <script type="text/javascript" src="javascript/standard/d3.v3.min.js?n=1"></script>
+    <script type="text/javascript" src="javascript/standard/jquery-2.0.3.min.js?n=1"></script>
+
+    <!-- Libraries -->
+    <script type="text/javascript" src="javascript/custom/testflow.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/compare.js?n=1"></script>
+    <script type="text/javascript" src="javascript/custom/range.js?n=1"></script>
+
+  </head>
+  <body>
+  
+   <div id="div1">
+     <center> Comparison </center>
+
+     </form>
+
+     <label> Select an iteration to view:</label>
+        <select id = "iter_total">
+        </select>
+
+      </form>
+
+   </div>
+
+   <div id="div2">
+   </div>
+
+  <script>
+
+    /*
+     * Global Variables
+     */
+    
+    var padding = 15;
+    var margin = {top: 50, right: 20, bottom: 20, left: 10},
+    w = 1300 - margin.left - margin.right,
+    h = 900 - margin.top - margin.bottom,
+    x = d3.scale.linear().domain([0, w]).range([0, w]),
+    y = d3.scale.linear().domain([0, h]).range([0, h]);
+
+    var vis,
+        view,
+        scale,
+        axis;   
+    
+    var types = [];
+    var type = [];
+
+    var color = d3.scale.category10();
+
+    //Range of the scale
+    var rangeBegin = 20;
+    var rangeEnd =  1200;
+
+    /*
+     * Model
+     */
+
+    var ModelData = function(data){
+   
+        this.data = data;
+        return this;
+    }
+   
+    /*
+     * View
+     */
+      
+    // View object constructor 
+    var ViewData = function( model ){
+      this.model = model.data;
+      this.workflow = null;
+      this.svg = null;
+      this.chart = null;
+           
+      return this;
+    }
+
+    //Renderer 
+ 
+    ViewData.prototype.render = function(iter_nodes,iter_links,iter_val){
+
+      vis = d3.select(this.chart).append("svg:svg")
+    .attr("width", w + margin.left + margin.right)
+      .attr("height", h + margin.top + margin.bottom)
+      .attr("id","Compare")
+     .append("g")
+      .attr("transform", "translate(120,20)");
+
+      var data_val = this.model;
+
+    }
+    
+    /*
+     * Controller
+     */
+      
+    var Controller = function(){
+        return this;
+    };
+
+    Controller.prototype.loadView = function(chart){
+  
+    //Get data from json
+     
+    d3.json(REPLACE, function(data) {
+
+        console.log(data);
+      
+        var model = new ModelData(data);
+      
+        view = new ViewData(model);
+
+        view.chart = chart;
+
+        iter = data.iteration;
+
+        for ( var i = 1; i < iter+1; i++ ){
+             $('#iter_total').append($("<option/>", {
+              value:i,
+              text: "Iteration " + i
+             }));
+         }
+
+        nodes1 = data["Refnodes1"];
+
+        nodes2 = data["Comnodes1"];
+
+        processed_nodes1 = processNodes(nodes1);
+ 
+        nodes1 = processed_nodes1.nodes;
+     
+        dataRange1 = processed_nodes1.dataRange;
+
+        processed_nodes2 = processNodes(nodes2);
+
+        nodes2 = processed_nodes2.nodes;
+     
+        dataRange2 = processed_nodes2.dataRange;
+
+        setScale(dataRange1,dataRange2);
+
+        compareFiles(nodes1,nodes2);
+       
+     }); 
+
+    }
+
+    //Set Scale 
+    function setScale(dataRange1,dataRange2){
+
+      var dataRange;
+
+      temp1 = dataRange1[1];
+      temp2 = dataRange2[1];
+
+      if (temp1 > temp2){
+         dataRange = dataRange1;
+      }else{
+         dataRange = dataRange2
+      }
+
+      scale = d3.scale.linear()
+         .domain([dataRange[0],dataRange[1]])
+         .range([rangeBegin,rangeEnd]);
+
+    }
+
+    //Process the data
+    function processNodes(display_nodes,display_links){
+
+       var nodes = display_nodes;
+
+       var setRange_data = setRange(nodes);
+       var dataRange = setRange_data.dataRange;
+        
+       nodes = setRange_data.nodes;
+
+       workflow = d3.layout.workflow()
+         .nodes(nodes)
+         .size([w - 4*padding, h- 4*padding]);
+  
+       workflow.layout();
+
+       return{
+          nodes: nodes,
+          dataRange : dataRange
+       }
+    }
+
+    //Select differnet iteration to view
+    $("#iter_total").change(function(){ 
+
+       iter_value = $(this).val();
+       var temp_ref_str = "Refnodes"+iter_value;
+       var temp_com_str = "Comnodes"+iter_value;
+
+       data_value = view.model;
+
+       nodes1 = data_value[temp_ref_str];
+
+       nodes2 = data_value[temp_com_str];
+
+       processed_nodes1 = processNodes(nodes1);
+ 
+       nodes1 = processed_nodes1.nodes;
+     
+       dataRange1 = processed_nodes1.dataRange;
+
+       processed_nodes2 = processNodes(nodes2);
+
+       nodes2 = processed_nodes2.nodes;
+     
+       dataRange2 = processed_nodes2.dataRange;
+
+       setScale(dataRange1,dataRange2);
+
+       compareFiles(nodes1,nodes2);
+
+     });
+ 
+    // creating a new controller for Getting the data from json file
+    cntrl = new Controller();
+    cntrl.loadView("#div2");
+
+    </script>
+  </body>
+
+</html>
